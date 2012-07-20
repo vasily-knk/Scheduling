@@ -6,7 +6,7 @@ task::task(size_t n)
 	: min_bound_ (n)
     , max_bound_ (n)
 	, due_       (n)
-	, separation_(n, vector<moment>(n))
+	, separation_(n, n)
 	, eweight_   (n)
 	, tweight_   (n)
     , n_         (n)
@@ -56,7 +56,7 @@ vector<moment> task::generate_times(const permutation &p) const
     {
         const size_t prev = p[i-1];
         const size_t curr = p[i];
-        x[curr] = max(min_bound_[curr], x[prev] + separation_[prev][curr]);
+        x[curr] = max(min_bound_[curr], x[prev] + separation_(prev, curr));
     }
 
     return x;

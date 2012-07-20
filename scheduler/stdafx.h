@@ -27,3 +27,5 @@ using std::max;
 #include <algorithm>
 #include <numeric>
 
+#include <boost/numeric/ublas/matrix.hpp>
+using boost::numeric::ublas::matrix;

@@ -21,7 +21,8 @@ private:
     vector<moment> max_bound_;
 
     vector<moment> due_;
-	vector<vector<moment>> separation_;
+	matrix<moment>
+ separation_;
 
 	vector<cost_t> eweight_;
 	vector<cost_t> tweight_;
