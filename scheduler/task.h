@@ -8,7 +8,14 @@ typedef vector<size_t> permutation;
 class task
 {
 public:
-	task(size_t n);
+    task(size_t n, 
+        const vector<moment> &min_bound,
+        const vector<moment> &max_bound,
+        const vector<moment> &due,
+        const matrix<moment> &separation,
+        const vector<cost_t> &eweight,
+        const vector<cost_t> &tweight
+        );
 
     bool is_valid(const permutation &p) const;
     cost_t calculate_cost(const permutation &p) const;
@@ -21,8 +28,7 @@ private:
     vector<moment> max_bound_;
 
     vector<moment> due_;
-	matrix<moment>
- separation_;
+	matrix<moment> separation_;
 
 	vector<cost_t> eweight_;
 	vector<cost_t> tweight_;

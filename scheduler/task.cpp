@@ -2,16 +2,21 @@
 #include "task.h"
 
 
-task::task(size_t n)
-	: min_bound_ (n)
-    , max_bound_ (n)
-	, due_       (n)
-	, separation_(n, n)
-	, eweight_   (n)
-	, tweight_   (n)
+task::task(size_t n, const vector<moment> &min_bound, const vector<moment> &max_bound, const vector<moment> &due, const matrix<moment> &separation, const vector<cost_t> &eweight, const vector<cost_t> &tweight)
+    : min_bound_ (min_bound)
+    , max_bound_ (max_bound)
+    , due_       (due)
+    , separation_(separation)
+    , eweight_   (eweight)
+    , tweight_   (tweight)
     , n_         (n)
 {
-    
+    assert(min_bound_.size() == n_);
+    assert(max_bound_.size() == n_);
+    assert(due_      .size() == n_);
+    assert(separation_.size1() == separation_.size2() == n_);
+    assert(eweight_.size() == n_);
+    assert(tweight_.size() == n_);
 }
 
 cost_t task::calculate_cost(const permutation &p) const
