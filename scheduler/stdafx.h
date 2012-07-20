@@ -29,3 +29,7 @@ using std::max;
 
 #include <boost/numeric/ublas/matrix.hpp>
 using boost::numeric::ublas::matrix;
+
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random.hpp>
+#include <boost/generator_iterator.hpp>
