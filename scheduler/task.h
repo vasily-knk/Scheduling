@@ -5,39 +5,42 @@ typedef float cost_t;
 
 typedef vector<size_t> permutation;
 
-#include "vector_field.h"
+//#include "vector_field.h"
 
 class task
 {
 public:
     task(size_t n);
-
-    bool is_valid(const permutation &p) const;
-    cost_t calculate_cost(const permutation &p) const;
-    cost_t get_cost(const vector<moment> &x) const;
+    task(const task& t);
 
 public:
-    vector_field<moment> get_min_bound  () {return min_bound_;}
-    vector_field<moment> get_max_bound  () {return max_bound_;}
-    vector_field<moment> get_due        () {return due_;}
-    matrix_field<moment> get_sepatation () {return separation_;}
+    moment* get_min_bound  () const {return min_bound_.get();}
+    moment* get_max_bound  () const {return max_bound_.get();}
+    moment* get_due        () const {return due_.get();}
+    moment* get_sepatation () const {return separation_.get();}
 
-    vector_field<cost_t> get_eweight   () {return eweight_;}
-    vector_field<cost_t> get_tweight   () {return tweight_;}
+    cost_t* get_eweight   () const {return eweight_.get();}
+    cost_t* get_tweight   () const {return tweight_.get();}
+
+    moment &get_separation (size_t i, size_t j) const {return separation_[i * n_ + j];}
+
+    size_t get_n() const {return n_;}
 
 private:
-    vector<moment> generate_times(const permutation &p) const;
+    scoped_array<moment> min_bound_;
+    scoped_array<moment> max_bound_;
 
-private:
-    vector<moment> min_bound_;
-    vector<moment> max_bound_;
+    scoped_array<moment> due_;
+    scoped_array<moment> separation_;
 
-    vector<moment> due_;
-    matrix<moment> separation_;
-
-    vector<cost_t> eweight_;
-    vector<cost_t> tweight_;
+    scoped_array<cost_t> eweight_;
+    scoped_array<cost_t> tweight_;
 
     const size_t n_;
 };
 
+
+bool is_valid(const task& t, const permutation &p) ;
+cost_t calculate_cost(const task& t, const permutation &p) ;
+cost_t get_cost(const task& t, const vector<moment> &x) ;
+vector<moment> generate_times(const task& t, const permutation &p) ;

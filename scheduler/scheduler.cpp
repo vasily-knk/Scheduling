@@ -56,7 +56,7 @@ task planes_task(size_t n, float timespan)
     float separations_avg = 0;
     for (size_t i = 0; i < n; ++i)
         for (size_t j = 0; j < n; ++j) 
-            separations_avg += (t.get_sepatation() (i, j) = get_class_wait(classes[i], classes[j]));
+            separations_avg += (t.get_separation(i, j) = get_class_wait(classes[i], classes[j]));
              
     separations_avg /= (n * n);
 
@@ -74,19 +74,46 @@ task planes_task(size_t n, float timespan)
     return t;
 }
 
+permutation random_solver(const task &t, const permutation &src, size_t n_iters)
+{
+    permutation dst (src);
+    for (size_t iter = 0; iter < n_iters; ++iter)
+    {
+        size_t i = rand() % (t.get_n() - 1);
+        size_t j = i + 1 + rand() % (t.get_n() - i - 1);
+
+        cost_t before = calculate_cost(t, dst);
+        std::swap(dst[i], dst[j]);
+        cost_t after = calculate_cost(t, dst);
+
+        if (after >= before)
+            std::swap(dst[i], dst[j]);
+    }
+    return dst;        
+}
+
 int main(int argc, char* argv[])
 {
-    const size_t n = 10;
+    srand (static_cast<unsigned int>(std::time(0)));
+
+    const size_t n = 50;
     
-    task t = planes_task(10, 100.0f);
+    task t = planes_task(n, 100.0f);
 
     permutation perm(n);
     for (size_t i = 0; i < n; ++i)
         perm[i] = i;
 
-    random_shuffle(perm.begin(), perm.end());
+    std::sort (perm.begin(), perm.end(), [&](size_t i, size_t j) -> bool
+    {
+        return t.get_due()[i] < t.get_due()[j];
+    });
 
-    cout << t.calculate_cost(perm) << endl;
+
+    cout << calculate_cost(t, perm) << endl;
+    permutation perm1 = random_solver(t, perm, 10000);
+    cout << calculate_cost(t, perm1) << endl;
+
 
     return 0;
 }

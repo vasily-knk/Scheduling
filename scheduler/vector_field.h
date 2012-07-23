@@ -5,7 +5,7 @@ class vector_field
 {
 public:
     vector_field(vector<T> &vec)
-        : pvector_(&vec)
+        : vector_(vec)
     {
 
     }
@@ -17,29 +17,29 @@ public:
     typedef typename vector<T>::size_type size_type;
 
 public:
-    iterator       begin ()       {return pvector_->begin();}
-    const_iterator begin () const {return pvector_->begin();}
-    iterator       end   ()       {return pvector_->end();}
-    const_iterator end   () const {return pvector_->end();}
+    iterator       begin ()       {return vector_.begin();}
+    const_iterator begin () const {return vector_.begin();}
+    iterator       end   ()       {return vector_.end();}
+    const_iterator end   () const {return vector_.end();}
           
-    iterator       rbegin ()       {return pvector_->rbegin();}
-    const_iterator rbegin () const {return pvector_->rbegin();}
-    iterator       rend   ()       {return pvector_->rend();}
-    const_iterator rend   () const {return pvector_->rend();}
+    iterator       rbegin ()       {return vector_.rbegin();}
+    const_iterator rbegin () const {return vector_.rbegin();}
+    iterator       rend   ()       {return vector_.rend();}
+    const_iterator rend   () const {return vector_.rend();}
 
-    reference       at (size_type n)       {return pvector_->at(n);}
-    const_reference at (size_type n) const {return pvector_->at(n);}
+    reference       at (size_type n)       {return vector_.at(n);}
+    const_reference at (size_type n) const {return vector_.at(n);}
 
-    reference       operator[] (size_type n)       {return (*pvector_)[n];}
-    const_reference operator[] (size_type n) const {return (*pvector_)[n];}
+    reference       operator[] (size_type n)       {return vector_.operator[](n);}
+    const_reference operator[] (size_type n) const {return vector_.operator[](n);}
 
-    reference       front ()       {return pvector_->front();}
-    const_reference front () const {return pvector_->front();}
-    reference       back  ()       {return pvector_->back();}
-    const_reference back  () const {return pvector_->back();}
+    reference       front ()       {return vector_.front();}
+    const_reference front () const {return vector_.front();}
+    reference       back  ()       {return vector_.back();}
+    const_reference back  () const {return vector_.back();}
 
 private:
-    vector<T> *pvector_;
+    vector<T> vector_;
 };
 
 
@@ -48,7 +48,7 @@ class matrix_field
 {
 public:
     matrix_field(matrix<T> &vec)
-        : pmatrix_(&vec)
+        : matrix_(vec)
     {
 
     }
@@ -58,8 +58,8 @@ public:
     typedef typename matrix<T>::size_type size_type;
 
 public:
-    const_reference operator () (size_type i, size_type j) const {return (*pmatrix_)(i, j);}
-    reference       operator () (size_type i, size_type j)       {return (*pmatrix_)(i, j);}
+    const_reference operator () (size_type i, size_type j) const {return matrix_.operator()(i, j);}
+    reference       operator () (size_type i, size_type j)       {return matrix_.operator()(i, j);}
 private:
-    matrix<T> *pmatrix_;
+    matrix<T> matrix_;
 };
