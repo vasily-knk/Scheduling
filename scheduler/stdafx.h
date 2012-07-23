@@ -39,3 +39,4 @@ using boost::random::uniform_real_distribution;
 using boost::random::uniform_int_distribution;
 using boost::random::variate_generator;
 
+#include <cmath>

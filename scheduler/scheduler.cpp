@@ -4,6 +4,9 @@
 #include "stdafx.h"
 #include "task.h"
 
+typedef mt19937 gen;
+gen randgen(static_cast<unsigned int>(std::time(0)));
+
 enum plane_class
 {
     LIGHT = 0, MEDIUM = 1, HEAVY = 2
@@ -27,9 +30,6 @@ float get_class_wait(plane_class i, plane_class j)
 
 task planes_task(size_t n, float timespan)
 {
-    typedef mt19937 gen;
-
-    gen randgen(static_cast<unsigned int>(std::time(0)));
     uniform_real_distribution<float> classes_distr(0, 1);
     uniform_real_distribution<float> dates_distr(0, timespan);
 
@@ -131,9 +131,9 @@ permutation all_triples_solver(const task &t, const permutation &src, size_t n_i
     for (size_t iter = 0; iter < n_iters; ++iter)
     {
         int counter = 0;
-        for (size_t i = 0; i < t.get_n(); ++i)
+        for (size_t i = 0; i < t.get_n() - 2; ++i)
         {
-            for (size_t j = i + 1; j < t.get_n(); ++j)
+            for (size_t j = i + 1; j < t.get_n() - 1; ++j)
             {
                 for (size_t k = j + 1; k < t.get_n(); ++k)
                 {
@@ -172,6 +172,46 @@ permutation all_triples_solver(const task &t, const permutation &src, size_t n_i
         cout << " iter " << iter << ": " << counter << " swaps" << endl;
     }
     return dst;        
+}
+
+permutation annealing_solver(const task &t, const permutation &src)
+{
+    uniform_real_distribution<float> distr(0, 1);
+    variate_generator<gen, uniform_real_distribution<float>> gener(randgen, distr);
+
+
+    permutation dst(src);
+    const float initial = 10000;
+    const float frozen = 0.1;
+    const float cooling = 0.99;
+    const size_t n_iter = 100;
+
+    for (float temperature = initial; temperature > frozen; temperature *= cooling)
+    {
+        for (size_t iter = 0; iter < n_iter; ++iter)
+        {
+            size_t i = rand() % (t.get_n() - 1);
+            size_t j = i + 1 + rand() % (t.get_n() - i - 1);
+
+
+            cost_t before = calculate_cost(t, dst);
+            std::swap(dst[i], dst[j]);
+            cost_t after = calculate_cost(t, dst);
+
+            if (after < before)
+                continue;
+
+            // after >= before
+            float p = 1.0f / (1.0f + exp((after - before) / temperature));
+            float h = gener();
+            if (p > h)
+                continue;
+
+            std::swap(dst[i], dst[j]);
+        }
+    }
+
+    return dst;
 }
 
 
@@ -255,11 +295,16 @@ int main(int argc, char* argv[])
     perm1 = all_triples_solver(t, perm, 5);
     cout << perm1 << endl;
     cout << calculate_cost(t, perm1) << endl;
-    
-    cout << "Sliding window solver: " << endl;
-    perm1 = sliding_window_solver(t, perm, 10);
+
+    cout << "Annealing solver: " << endl;
+    perm1 = annealing_solver(t, perm);
     cout << perm1 << endl;
     cout << calculate_cost(t, perm1) << endl;
+    
+    /*cout << "Sliding window solver: " << endl;
+    perm1 = sliding_window_solver(t, perm, 10);
+    cout << perm1 << endl;
+    cout << calculate_cost(t, perm1) << endl;*/
     return 0;
 }
 
