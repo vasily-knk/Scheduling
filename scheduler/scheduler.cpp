@@ -60,15 +60,15 @@ task planes_task(size_t n, float timespan)
              
     separations_avg /= (n * n);
 
-    for (size_t i = 0; i < n; ++i) 
-    {
-        t.get_due() [i] = t.get_min_bound() [i] = dates_gen();
-        t.get_max_bound() [i] = std::numeric_limits<moment>::max();
-    }
+
+    std::generate(t.get_due(), t.get_due() + n, dates_gen);
+    std::sort (t.get_due(), t.get_due() + n);
+    std::copy (t.get_due(), t.get_due() + n, t.get_min_bound());
+    std::fill (t.get_max_bound(), t.get_max_bound() + n, std::numeric_limits<moment>::max());
 
     for (size_t i = 0; i < n; ++i) 
     {
-        t.get_tweight() [i] = t.get_eweight() [i] = 1;
+        t.get_tweight() [i] = t.get_eweight() [i] = classes_gen();
     }
 
     return t;
@@ -77,6 +77,7 @@ task planes_task(size_t n, float timespan)
 permutation random_solver(const task &t, const permutation &src, size_t n_iters)
 {
     permutation dst (src);
+    int counter = 0;
     for (size_t iter = 0; iter < n_iters; ++iter)
     {
         size_t i = rand() % (t.get_n() - 1);
@@ -88,9 +89,83 @@ permutation random_solver(const task &t, const permutation &src, size_t n_iters)
 
         if (after >= before)
             std::swap(dst[i], dst[j]);
+        else
+            ++counter;
+    }
+    cout << " " << counter << "/" << n_iters << " swaps" << endl;
+    return dst;        
+}
+
+permutation all_pairs_solver(const task &t, const permutation &src, size_t n_iters)
+{
+    permutation dst (src);
+
+
+    for (size_t iter = 0; iter < n_iters; ++iter)
+    {
+        int counter = 0;
+        for (size_t i = 0; i < t.get_n(); ++i)
+        {
+            for (size_t j = i + 1; j < t.get_n(); ++j)
+            {
+                cost_t before = calculate_cost(t, dst);
+                std::swap(dst[i], dst[j]);
+                cost_t after = calculate_cost(t, dst);
+
+                if (after >= before)
+                    std::swap(dst[i], dst[j]);
+                else
+                    ++counter;
+            }
+        }
+        cout << " iter " << iter << ": " << counter << " swaps" << endl;
     }
     return dst;        
 }
+
+
+permutation sliding_window_solver(const task &t, const permutation &src, size_t window_size)
+{
+    permutation dst (src);
+    permutation best (src);
+    cost_t best_cost = calculate_cost(t, best);
+
+    size_t last = dst.size() - window_size;
+
+    for (size_t i = 0; i <= last; ++i)
+    {
+        dst = best;
+        
+        auto it = dst.begin() + i;
+        
+        std::sort(it, it + window_size);
+
+        int counter = 0;
+        do {
+            ++counter;
+            cost_t curr_cost = calculate_cost(t, dst);
+            if (curr_cost < best_cost)
+            {
+                //cout << " improvement: " << best_cost << " -> " << curr_cost << endl;
+                best = dst;
+                best_cost = calculate_cost(t, best);
+            }
+        } while (std::next_permutation(it, it + window_size));
+
+        cout << " offset " << i << " " << counter << endl;
+
+    }
+
+    return best;
+}
+std::ostream& operator<< (std::ostream& s, const permutation &p)
+{
+    for (auto i : p)
+        s << i << " ";
+    return s;
+}
+
+
 
 int main(int argc, char* argv[])
 {
@@ -98,7 +173,7 @@ int main(int argc, char* argv[])
 
     const size_t n = 50;
     
-    task t = planes_task(n, 100.0f);
+    task t = planes_task(n, 50.0f);
 
     permutation perm(n);
     for (size_t i = 0; i < n; ++i)
@@ -110,11 +185,43 @@ int main(int argc, char* argv[])
     });
 
 
-    cout << calculate_cost(t, perm) << endl;
-    permutation perm1 = random_solver(t, perm, 10000);
+    permutation perm1(perm);
+    cout << "Original: " << endl;
+    cout << perm1 << endl;
     cout << calculate_cost(t, perm1) << endl;
 
+    cout << "Random solver: " << endl;
+    perm1 = random_solver(t, perm, 10000);
+    cout << perm1 << endl;
+    cout << calculate_cost(t, perm1) << endl;
 
+    cout << "All pairs solver: " << endl;
+    perm1 = all_pairs_solver(t, perm, 5);
+    cout << perm1 << endl;
+    cout << calculate_cost(t, perm1) << endl;
+    
+    cout << "Sliding window solver: " << endl;
+    perm1 = sliding_window_solver(t, perm, 10);
+    cout << perm1 << endl;
+    cout << calculate_cost(t, perm1) << endl;
     return 0;
 }
 
+
+
+/*int main(int argc, char* argv[])
+{
+    const size_t n = 4;
+
+    permutation perm(n);
+    for (size_t i = 0; i < n; ++i)
+        perm[i] = i;
+
+    bool ok = true;
+    while (ok)
+    {
+        cout << perm << endl;
+        ok = std::next_permutation(perm.begin(), perm.end());
+    }
+
+}*/
