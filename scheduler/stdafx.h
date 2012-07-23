@@ -30,6 +30,12 @@ using std::max;
 #include <boost/numeric/ublas/matrix.hpp>
 using boost::numeric::ublas::matrix;
 
-#include <boost/random/uniform_real_distribution.hpp>
 #include <boost/random.hpp>
-#include <boost/generator_iterator.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/variate_generator.hpp>
+using boost::mt19937;
+using boost::random::uniform_real_distribution;
+using boost::random::uniform_int_distribution;
+using boost::random::variate_generator;
+

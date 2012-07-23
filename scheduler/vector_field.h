@@ -30,8 +30,8 @@ public:
     reference       at (size_type n)       {return pvector_->at(n);}
     const_reference at (size_type n) const {return pvector_->at(n);}
 
-    reference       operator[] (size_type n)       {return pvector_[n];}
-    const_reference operator[] (size_type n) const {return pvector_[n];}
+    reference       operator[] (size_type n)       {return (*pvector_)[n];}
+    const_reference operator[] (size_type n) const {return (*pvector_)[n];}
 
     reference       front ()       {return pvector_->front();}
     const_reference front () const {return pvector_->front();}
@@ -42,3 +42,24 @@ private:
     vector<T> *pvector_;
 };
 
+
+template <typename T>
+class matrix_field
+{
+public:
+    matrix_field(matrix<T> &vec)
+        : pmatrix_(&vec)
+    {
+
+    }
+public:
+    typedef typename matrix<T>::reference reference;
+    typedef typename matrix<T>::const_reference const_reference;
+    typedef typename matrix<T>::size_type size_type;
+
+public:
+    const_reference operator () (size_type i, size_type j) const {return (*pmatrix_)(i, j);}
+    reference       operator () (size_type i, size_type j)       {return (*pmatrix_)(i, j);}
+private:
+    matrix<T> *pmatrix_;
+};
