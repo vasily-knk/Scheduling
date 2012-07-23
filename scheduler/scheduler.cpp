@@ -123,6 +123,57 @@ permutation all_pairs_solver(const task &t, const permutation &src, size_t n_ite
     return dst;        
 }
 
+permutation all_triples_solver(const task &t, const permutation &src, size_t n_iters)
+{
+    permutation dst (src);
+
+
+    for (size_t iter = 0; iter < n_iters; ++iter)
+    {
+        int counter = 0;
+        for (size_t i = 0; i < t.get_n(); ++i)
+        {
+            for (size_t j = i + 1; j < t.get_n(); ++j)
+            {
+                for (size_t k = j + 1; k < t.get_n(); ++k)
+                {
+                    size_t triple[] = {i, j, k};
+                    permutation best(dst);
+                    cost_t best_cost = calculate_cost(t, best);
+
+                    permutation orig(dst);
+                    bool flag = false;
+                    do 
+                    {
+                        dst[i] = orig[triple[0]];
+                        dst[j] = orig[triple[1]];
+                        dst[k] = orig[triple[2]];
+                        
+                        cost_t curr_cost = calculate_cost(t, dst);
+                        if (curr_cost < best_cost)
+                        {
+                            best = dst;
+                            best_cost = curr_cost;
+                            flag = true;
+                        }
+                    } while (std::next_permutation(triple, triple + 3));
+                    
+                    if (flag)
+                    {
+                       dst = best;
+                       ++counter;
+                    }
+                    else
+                        dst = orig;
+
+                }
+            }
+        }
+        cout << " iter " << iter << ": " << counter << " swaps" << endl;
+    }
+    return dst;        
+}
+
 
 permutation sliding_window_solver(const task &t, const permutation &src, size_t window_size)
 {
@@ -148,7 +199,7 @@ permutation sliding_window_solver(const task &t, const permutation &src, size_t 
             {
                 //cout << " improvement: " << best_cost << " -> " << curr_cost << endl;
                 best = dst;
-                best_cost = calculate_cost(t, best);
+                best_cost = curr_cost;
             }
         } while (std::next_permutation(it, it + window_size));
 
@@ -199,6 +250,11 @@ int main(int argc, char* argv[])
     perm1 = all_pairs_solver(t, perm, 5);
     cout << perm1 << endl;
     cout << calculate_cost(t, perm1) << endl;
+
+    cout << "All triples solver: " << endl;
+    perm1 = all_triples_solver(t, perm, 5);
+    cout << perm1 << endl;
+    cout << calculate_cost(t, perm1) << endl;
     
     cout << "Sliding window solver: " << endl;
     perm1 = sliding_window_solver(t, perm, 10);
@@ -209,19 +265,3 @@ int main(int argc, char* argv[])
 
 
 
-/*int main(int argc, char* argv[])
-{
-    const size_t n = 4;
-
-    permutation perm(n);
-    for (size_t i = 0; i < n; ++i)
-        perm[i] = i;
-
-    bool ok = true;
-    while (ok)
-    {
-        cout << perm << endl;
-        ok = std::next_permutation(perm.begin(), perm.end());
-    }
-
-}*/
