@@ -100,13 +100,15 @@ permutation all_pairs_solver(const task &t, const permutation &src, size_t n_ite
 {
     permutation dst (src);
 
+    int iter = 0;
 
-    for (size_t iter = 0; iter < n_iters; ++iter)
+    bool success = true;
+    for (int iter = 0; success; ++iter)
     {
-        int counter = 0;
-        for (size_t i = 0; i < t.get_n(); ++i)
+        success = false;
+        for (size_t i = 0; i < t.get_n() && !success; ++i)
         {
-            for (size_t j = i + 1; j < t.get_n(); ++j)
+            for (size_t j = i + 1; j < t.get_n() && !success; ++j)
             {
                 cost_t before = calculate_cost(t, dst);
                 std::swap(dst[i], dst[j]);
@@ -115,11 +117,13 @@ permutation all_pairs_solver(const task &t, const permutation &src, size_t n_ite
                 if (after >= before)
                     std::swap(dst[i], dst[j]);
                 else
-                    ++counter;
+                    success = true;
             }
         }
-        cout << " iter " << iter << ": " << counter << " swaps" << endl;
-    }
+
+        //cout << " iter " << iter << endl;
+    } 
+
     return dst;        
 }
 
@@ -214,6 +218,41 @@ permutation annealing_solver(const task &t, const permutation &src)
     return dst;
 }
 
+bool lk_helper()
+
+permutation lk_solver(const task &t, const permutation &src)
+{
+    permutation dst (src);
+
+    int iter = 0;
+
+    bool success = true;
+    for (int iter = 0; success; ++iter)
+    {
+        success = false;
+        for (size_t i = 0; i < t.get_n() && !success; ++i)
+        {
+            for (size_t j = i + 1; j < t.get_n() && !success; ++j)
+            {
+                cost_t before = calculate_cost(t, dst);
+                std::swap(dst[i], dst[j]);
+                cost_t after = calculate_cost(t, dst);
+
+                if (after >= before)
+                {
+                    std::swap(dst[i], dst[j]);
+                }
+                else
+                    success = true;
+            }
+        }
+
+        //cout << " iter " << iter << endl;
+    } 
+
+    return dst;        
+}
+
 
 permutation sliding_window_solver(const task &t, const permutation &src, size_t window_size)
 {
@@ -301,10 +340,10 @@ int main(int argc, char* argv[])
     cout << perm1 << endl;
     cout << calculate_cost(t, perm1) << endl;
     
-    /*cout << "Sliding window solver: " << endl;
+    cout << "Sliding window solver: " << endl;
     perm1 = sliding_window_solver(t, perm, 10);
     cout << perm1 << endl;
-    cout << calculate_cost(t, perm1) << endl;*/
+    cout << calculate_cost(t, perm1) << endl;
     return 0;
 }
 
