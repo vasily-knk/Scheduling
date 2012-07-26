@@ -68,7 +68,8 @@ task planes_task(size_t n, float timespan)
 
     for (size_t i = 0; i < n; ++i) 
     {
-        t.get_tweight() [i] = t.get_eweight() [i] = classes_gen();
+        t.get_tweight() [i] = classes_gen();
+        t.get_eweight() [i] = 0;
     }
 
     return t;
@@ -99,29 +100,46 @@ permutation random_solver(const task &t, const permutation &src, size_t n_iters)
 permutation all_pairs_solver(const task &t, const permutation &src, size_t n_iters)
 {
     permutation dst (src);
+    cost_t orig_cost = calculate_cost(t, src);
 
-    int iter = 0;
+
+    size_t best_i = 0, best_j = 0;
+    cost_t best_cost = orig_cost + 1;
 
     bool success = true;
-    for (int iter = 0; success; ++iter)
+    int iter;
+    for (iter = 0; success; ++iter)
     {
         success = false;
-        for (size_t i = 0; i < t.get_n() && !success; ++i)
+        for (size_t i = 0; i < t.get_n()/* && !success*/; ++i)
         {
-            for (size_t j = i + 1; j < t.get_n() && !success; ++j)
+            for (size_t j = i + 1; j < t.get_n()/* && !success*/; ++j)
             {
                 cost_t before = calculate_cost(t, dst);
                 std::swap(dst[i], dst[j]);
                 cost_t after = calculate_cost(t, dst);
 
-                if (after >= before)
+                if (after < best_cost)
+                {
+                    best_i = i;
+                    best_j = j;
+                    best_cost = after;
+                    success = true;
+                }
+
+                std::swap(dst[i], dst[j]);
+
+/*                if (after >= before)
                     std::swap(dst[i], dst[j]);
                 else
-                    success = true;
+                    success = true;*/
             }
         }
 
-        //cout << " iter " << iter << endl;
+        if (success)
+            std::swap(dst[best_i], dst[best_j]);
+
+        //cout << " iter " << iter << ", cost " << best_cost << endl;
     } 
 
     return dst;        
@@ -218,7 +236,25 @@ permutation annealing_solver(const task &t, const permutation &src)
     return dst;
 }
 
-bool lk_helper()
+bool lk_test_push(const task &t, const permutation &src, size_t size)
+{
+    return false;
+}
+
+bool lk_helper(const task &t, size_t i1, size_t i2, const permutation &src)
+{
+    vector<size_t> push;
+    for (size_t i = 0; i < t.get_n(); ++i)
+        push.push_back(i);
+
+    std::swap(push[0], push[i1]);
+    std::swap(push[1], push[i2]);
+
+    std::random_shuffle(push.begin() + 2, push.end());
+
+
+    return false;
+}
 
 permutation lk_solver(const task &t, const permutation &src)
 {
